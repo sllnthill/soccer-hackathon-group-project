@@ -7,6 +7,7 @@ from pathlib import Path
 import orjson
 
 from . import config, sources
+from .detectors import shape
 from .events import load_events, load_phases
 from .loader import build_meta, load_match_json, load_tracking
 from .pack import PIPELINE_VERSION, write_match
@@ -38,6 +39,10 @@ def ingest_match(match_id: int, force: bool = False) -> dict:
         log.warning("match %s: %d tracked ids not in roster", match_id, len(trk.unknown_player_ids))
     events = load_events(sources.dynamic_events(match_id))
     phases = load_phases(sources.phases_of_play(match_id))
-    meta = write_match(out, build_meta(match, trk, config.FPS), trk, events, phases)
+    meta = build_meta(match, trk, config.FPS)
+    shape_series, shape_moments = shape.compute(trk, meta, phases)
+    moments = sorted((m.to_dict() for m in shape_moments), key=lambda m: m["anchor_frame"])
+    meta = write_match(out, meta, trk, events, phases,
+                       {"shape.json": shape_series, "moments.json": moments})
     log.info("match %s: ingested %d frames in %.1fs", match_id, trk.n_frames, time.perf_counter() - t0)
     return meta

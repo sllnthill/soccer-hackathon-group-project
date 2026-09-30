@@ -11,14 +11,15 @@ import orjson
 from .loader import MISSING, SCALE, Tracking
 
 # Bump when the output format changes; cached matches are then re-processed.
-PIPELINE_VERSION = 2
+PIPELINE_VERSION = 3
 
 
 def _write_json(path: Path, obj) -> None:
     path.write_bytes(orjson.dumps(obj, option=orjson.OPT_SERIALIZE_NUMPY))
 
 
-def write_match(out_dir: Path, meta: dict, trk: Tracking, events: list, phases: list) -> dict:
+def write_match(out_dir: Path, meta: dict, trk: Tracking, events: list, phases: list,
+                extra_json: dict[str, object] | None = None) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     arrays = {
         "positions.bin": (trk.positions, "int16", [trk.n_frames, meta["n_slots"], 2]),
@@ -43,4 +44,6 @@ def write_match(out_dir: Path, meta: dict, trk: Tracking, events: list, phases: 
     _write_json(out_dir / "meta.json", meta)
     _write_json(out_dir / "events.json", events)
     _write_json(out_dir / "phases.json", phases)
+    for name, obj in (extra_json or {}).items():
+        _write_json(out_dir / name, obj)
     return meta
