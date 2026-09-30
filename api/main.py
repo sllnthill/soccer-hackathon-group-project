@@ -23,7 +23,7 @@ from .models import Clip, ClipCreate, ClipUpdate, _check_range
 
 log = logging.getLogger("api")
 WEB_DIST = Path(__file__).resolve().parent.parent / "web" / "dist"
-SERVED_FILES = {"meta.json", "events.json", "phases.json", "positions.bin", "detected.bin",
+SERVED_FILES = {"meta.json", "events.json", "phases.json", "shape.json", "moments.json", "positions.bin", "detected.bin",
                 "ball_z.bin", "clock.bin", "period.bin", "possession.bin", "possession_slot.bin"}
 
 # In-memory ingest status; the files on disk are the source of truth once done.
