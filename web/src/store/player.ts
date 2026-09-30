@@ -23,6 +23,8 @@ interface PlayerState {
   /** When set, playback loops inside this range (clip view). */
   loop: { start: number; end: number } | null
   notice: Notice | null
+  /** Team-shape chart under the timeline; off by default to keep first use simple. */
+  showShape: boolean
 
   setData: (d: MatchData | null) => void
   seek: (f: number) => void
@@ -38,6 +40,16 @@ interface PlayerState {
   clearRange: () => void
   setLoop: (l: { start: number; end: number } | null) => void
   notify: (text: string, kind?: Notice['kind']) => void
+  toggleShape: () => void
+}
+
+const SHAPE_KEY = 'clipper.showShape'
+const readPref = (key: string) => {
+  try {
+    return localStorage.getItem(key) === '1'
+  } catch {
+    return false
+  }
 }
 
 const maxFrames = (d: MatchData | null) => MAX_CLIP_SECONDS * (d?.meta.fps ?? 10)
@@ -53,6 +65,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   outFrame: null,
   loop: null,
   notice: null,
+  showShape: readPref(SHAPE_KEY),
 
   setData: (data) =>
     set({ data, frame: data?.meta.periods[0]?.start_frame ?? 0, playing: false, speed: 1, direction: 1,
@@ -110,4 +123,13 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   clearRange: () => set({ inFrame: null, outFrame: null }),
   setLoop: (loop) => set({ loop }),
   notify: (text, kind = 'info') => set({ notice: { text, kind, id: Date.now() } }),
+  toggleShape: () =>
+    set((s) => {
+      try {
+        localStorage.setItem(SHAPE_KEY, s.showShape ? '0' : '1')
+      } catch {
+        /* storage blocked: preference just isn't remembered */
+      }
+      return { showShape: !s.showShape }
+    }),
 }))

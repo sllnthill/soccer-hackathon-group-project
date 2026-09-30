@@ -10,6 +10,7 @@ import { ExportMenu } from '../export/ExportMenu'
 import type { Clip } from '../data/types'
 import { PitchCanvas } from '../pitch/PitchCanvas'
 import { Controls } from '../player/Controls'
+import { Heartbeat } from '../player/Heartbeat'
 import { Timeline } from '../player/Timeline'
 import { usePlayback } from '../player/usePlayback'
 import { useShortcuts } from '../player/useShortcuts'
@@ -44,6 +45,7 @@ export function Workspace() {
   const [search] = useSearchParams()
   const navigate = useNavigate()
   const data = usePlayer((s) => s.data)
+  const showShape = usePlayer((s) => s.showShape)
   const [status, setStatus] = useState('Loading match…')
   const [error, setError] = useState<string | null>(null)
   const [clips, setClips] = useState<Clip[]>([])
@@ -141,6 +143,7 @@ export function Workspace() {
           )}
           <PitchCanvas key={matchId} />
           <Timeline />
+          {showShape && <Heartbeat />}
           <Controls onHelp={openHelp} />
         </section>
         <ClipPanel

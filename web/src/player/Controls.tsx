@@ -13,7 +13,8 @@ export function Controls({ onHelp }: { onHelp: () => void }) {
   const speed = usePlayer((s) => s.speed)
   const inFrame = usePlayer((s) => s.inFrame)
   const outFrame = usePlayer((s) => s.outFrame)
-  const { togglePlay, step, setSpeed, markIn, markOut, clearRange, notify } = usePlayer.getState()
+  const showShape = usePlayer((s) => s.showShape)
+  const { togglePlay, step, setSpeed, markIn, markOut, clearRange, notify, toggleShape } = usePlayer.getState()
   const fps = data.meta.fps
 
   const copyMoment = async () => {
@@ -84,6 +85,16 @@ export function Controls({ onHelp }: { onHelp: () => void }) {
         )}
         {(inFrame != null || outFrame != null) && (
           <button className={btn} title="Clear In/Out (X)" onClick={clearRange}><CloseIcon className="h-4 w-4" /></button>
+        )}
+        {data.shape && (
+          <button
+            className={`rounded-md px-2.5 py-1.5 text-sm ${showShape ? 'bg-sky-400/20 text-sky-200 ring-1 ring-sky-400/40' : 'text-slate-300 hover:bg-white/10'}`}
+            title="Show a chart of each team's shape (width, compactness…) under the timeline"
+            aria-pressed={showShape}
+            onClick={toggleShape}
+          >
+            Team shape
+          </button>
         )}
         <button className={btn} title="Copy link to this moment" onClick={copyMoment}><LinkIcon /></button>
         <button className={`${btn} px-3 font-semibold`} title="Keyboard shortcuts (?)" onClick={onHelp}>?</button>
